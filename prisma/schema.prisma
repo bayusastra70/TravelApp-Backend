@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  DONE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  DP_PENDING
+  DP_PAID
+  PAID
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  vehicles  Vehicle[]
+  bookings  Booking[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name      String
+  email     String
+  password  String
+  role      UserRole @default(ADMIN)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+}
+
+model Vehicle {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name        String
+  type        String
+  plateNumber String
+  capacity    Int
+  price       Decimal  @db.Decimal(12,2)
+  isActive    Boolean  @default(true)
+
+  imageUrl    String? 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+
+  @@index([tenantId])
+  @@unique([tenantId, plateNumber])
+}
+
+model Booking {
+  id           String        @id @default(uuid())
+
+  bookingCode  String?       @unique
+
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  vehicleId    String
+  vehicle      Vehicle       @relation(fields: [vehicleId], references: [id])
+
+  startDate    DateTime      @db.Date
+  endDate      DateTime      @db.Date
+
+  pickup       String
+  destination  String
+  pickupTime   String? 
+
+  guestName    String
+  guestPhone   String
+  guestEmail   String?
+
+  totalPrice Decimal? @db.Decimal(12,2)
+
+  status       BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  dpAmount Decimal? @db.Decimal(12,2)
+  
+  notes        String?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  statusLogs   BookingStatusLog[]
+
+  notifications Notification[]
+
+  @@index([tenantId, startDate])
+  @@index([vehicleId, startDate])
+}
+
+model BookingStatusLog {
+  id        String        @id @default(uuid())
+  bookingId String
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  oldStatus BookingStatus
+  newStatus BookingStatus
+
+  changedBy String
+  createdAt DateTime      @default(now())
+
+  @@index([bookingId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+
+  bookingId String?
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  title     String
+  message   String
+
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+}
