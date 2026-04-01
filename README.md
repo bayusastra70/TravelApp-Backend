@@ -1,25 +1,28 @@
 # 🚀 TravelApp Backend (NestJS)
 
-The robust core of **[Mertasari Trans](https://mertasaritrans.com/)**. This backend is built with NestJS and Prisma ORM to manage high-concurrency vehicle bookings, scheduling, and administrative workflows.
+[![Live Site](https://img.shields.io/badge/Live-mertasaritrans.com-blue?style=flat-square)](https://mertasaritrans.com/)
+[![Frontend Repo](https://img.shields.io/badge/Repo-Frontend-green?style=flat-square)](https://github.com/bayusastra70/TravelApp-FrontendWeb)
+
+The core API engine for **[Mertasari Trans](https://mertasaritrans.com/)**. This backend handles the complex business logic for vehicle rentals, availability validation, and automated scheduling.
+
+## 🔗 Project Links
+- **Production URL:** [https://mertasaritrans.com/](https://mertasaritrans.com/)
+- **Frontend Repository:** [bayusastra70/TravelApp-FrontendWeb](https://github.com/bayusastra70/TravelApp-FrontendWeb)
 
 ## 🛠 Features
-- **Booking Engine:** Automated booking code generation (`BT-YYYYMMDD-XXXX`) and overlap validation to prevent double-booking.
-- **Multitenancy Support:** Uses `TENANT_SLUG` logic to handle specific provider data.
-- **Transaction Safety:** Implements Prisma transactions for booking creation and status logging to ensure data integrity.
-- **Status Management:** Real-time status updates (Pending, Confirmed, Done, Cancelled) with automated notification triggers.
-- **Payment Logic:** Automatic 30% Down Payment (DP) calculation and payment status tracking.
-- **Analytics API:** Specialized endpoints for dashboard stats, active trips, and revenue calculation.
+- **Booking Engine:** Automated booking code generation (`BT-YYYYMMDD-XXXX`) with overlap validation.
+- **Transaction Safety:** Uses Prisma `$transaction` to ensure data integrity between bookings, status logs, and notifications.
+- **Dynamic Availability:** Real-time checking to ensure no vehicle is double-booked for the same period.
+- **Admin Analytics:** Specialized endpoints for revenue tracking, active trips, and fleet occupancy.
+- **Notification System:** Automated internal alerts for every status change.
 
 ## 🏗 Tech Stack
 - **Framework:** NestJS (Node.js)
-- **Database:** PostgreSQL
-- **ORM:** Prisma
-- **Validation:** Class-validator & DTOs
-- **Logging:** Custom status log tracking
+- **Database:** PostgreSQL + Prisma ORM
+- **Architecture:** Modular Pattern
 
-## ⚙️ Installation & Setup
-
-1. **Clone the repo:**
-   ```bash
-   git clone [https://github.com/bayusastra70/TravelApp-Backend.git](https://github.com/bayusastra70/TravelApp-Backend.git)
-   cd TravelApp-Backend
+## ⚙️ Quick Start
+1. **Clone & Install:** `npm install`
+2. **Environment:** Set `DATABASE_URL` and `TENANT_SLUG` in `.env`.
+3. **Database:** `npx prisma migrate dev`
+4. **Run:** `npm run start:dev`
